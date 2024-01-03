@@ -1,6 +1,6 @@
 import discord
 from discord.ext.commands import Bot
-from utils.config import bot_token, get_debug_status
+from utils.config import bot_token, get_debug_status, SYNC_COMMANDS
 from utils.utils import save_json_file, error_embed
 from discord_slash import SlashCommand
 from discord_slash.utils import manage_commands
@@ -10,7 +10,7 @@ import traceback
 # Creating the bot object
 intents = discord.Intents.all()
 bot = Bot(command_prefix="-", intents=intents)
-slash = SlashCommand(bot, sync_commands=True)
+slash = SlashCommand(bot, sync_commands=SYNC_COMMANDS)
 
 
 # Importing files from the commands directory to be initialised
@@ -20,7 +20,13 @@ from commands.CTFCommands import CTFCommands
 from commands.EventCommands import EventCommands
 from commands.HelpCommand import HelpCommand
 from commands.AdminCommands import AdminCommands
+from commands.GameCommands import GameCommands
+from commands.StrikeCommands import StrikeCommands
+from commands.ReferralCommands import ReferralCommands
 
+
+# Importing Quart app for web dashboard
+from webserver.app import app
 
 # Adding commands to the bot now that its ready
 bot.add_cog(BaseCommands(bot))
@@ -29,6 +35,9 @@ bot.add_cog(CTFCommands(bot))
 bot.add_cog(EventCommands(bot))
 bot.add_cog(HelpCommand(bot, slash))
 bot.add_cog(AdminCommands(bot, slash, bot_token))
+bot.add_cog(GameCommands(bot))
+bot.add_cog(StrikeCommands(bot))
+bot.add_cog(ReferralCommands(bot))
 
 
 @bot.event
@@ -51,4 +60,4 @@ async def on_slash_command_error(ctx, error):
         await error_embed(ctx, f"`{type(error).__name__}: {error}`")
 
 
-bot.run(bot_token)
+

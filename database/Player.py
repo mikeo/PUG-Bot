@@ -1,10 +1,13 @@
 from mojang import MojangAPI
+from random import choice, seed
 
 from utils.config import ELO_FLOOR
 from database.database import fetch_players_minecraft_id, fetch_players_minecraft_username, fetch_players_discord_id, \
     fetch_players_list_discord_id, update_players_priority, update_players_elo, update_players_minecraft_username, \
     update_players_minecraft_id, update_players_discord_id, check_players_minecraft_id, check_players_discord_id, \
     add_player, delete_player, player_check
+from database.strikes import get_active_user_strikes
+
 
 
 class PlayerDoesNotExistError(Exception):
@@ -112,6 +115,9 @@ class Player:
         self.discord_id = discord_id
         return True
 
+    def is_striked(self):
+        return bool(get_active_user_strikes(self.discord_id))
+
     @classmethod
     def add_player(cls, minecraft_id, discord_id, priority=0, elo=1000):
         minecraft_username = MojangAPI.get_username(minecraft_id)
@@ -168,4 +174,9 @@ class Player:
     @staticmethod
     def player_check(minecraft_id, discord_id):
         return player_check(minecraft_id, discord_id)
+
+    @classmethod
+    def fetch_random_player(cls):
+        seed()
+        return choice(Player.fetch_players_list())
 
